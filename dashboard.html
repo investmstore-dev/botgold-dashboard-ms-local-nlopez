@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOT Mining Store GOLD</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --purple:#a855f7;--purple-glow:#c084fc;--purple-dim:rgba(168,85,247,.12);
+  --gold:#fbbf24;--gold-dark:#d97706;--gold-glow:#fde68a;--gold-dim:rgba(251,191,36,.1);
+  --cyan:#22d3ee;--cyan-dim:rgba(34,211,238,.1);
+  --red:#f87171;--red-dim:rgba(248,113,113,.12);
+  --green:#4ade80;--green-dim:rgba(74,222,128,.1);
+  --dark:#08080f;--card-bg:#080810;--border-dim:rgba(255,255,255,.06)
+}
+html{scroll-behavior:smooth}
+body{background:var(--dark);font-family:'Rajdhani',sans-serif;min-height:100vh;padding:0 0 80px;overflow-x:hidden;color:#fff}
+
+/* ── Top bar ── */
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--gold),var(--cyan),var(--purple));background-size:200%;z-index:200;animation:topbar 4s linear infinite}
+@keyframes topbar{0%{background-position:0 0}100%{background-position:200% 0}}
+
+/* ── Header ── */
+.site-header{padding:clamp(20px,4vw,36px) clamp(16px,3vw,40px) 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;max-width:1600px;margin:0 auto;width:100%}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand-label{font-size:10px;font-weight:700;letter-spacing:6px;color:var(--purple);text-transform:uppercase}
+.brand-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,2.4vw,38px);font-weight:900;line-height:1}
+.brand-title em{font-style:normal;background:linear-gradient(90deg,var(--purple),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-title span{color:#fff}
+.header-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.status-pill{display:flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;white-space:nowrap}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+#pill-bot.online{border-color:rgba(74,222,128,.4);color:var(--green)}
+#pill-bot.online .status-dot{background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s ease-in-out infinite}
+#pill-bot.offline{border-color:rgba(248,113,113,.4);color:var(--red)}
+#pill-bot.offline .status-dot{background:var(--red)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.next-run-chip{font-size:11px;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.next-run-chip em{font-style:normal;color:var(--gold);font-family:'Orbitron',sans-serif;font-size:13px}
+.refresh-time{font-size:10px;color:rgba(255,255,255,.28);letter-spacing:1px;white-space:nowrap}
+
+/* ── Section ── */
+.section{padding:clamp(24px,3vw,40px) clamp(16px,3vw,40px) 0;max-width:1600px;margin:0 auto;width:100%}
+.section-label{font-size:10px;font-weight:700;letter-spacing:5px;color:var(--purple);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--purple-dim),transparent)}
+
+/* ── Burned banner ── */
+.burned-banner{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.35);padding:14px 22px;display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.burned-icon{font-size:22px}
+.burned-text{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--red)}
+.burned-count{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--red);margin-left:auto;text-shadow:0 0 20px rgba(248,113,113,.5)}
+
+/* ── Account cards grid ── */
+.accounts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px}
+
+/* ── Card base ── */
+.card{position:relative;background:var(--card-bg);overflow:hidden;cursor:default;opacity:0;transform:translateY(20px);animation:cardIn .6s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes cardIn{to{opacity:1;transform:translateY(0)}}
+.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.15s}.card:nth-child(3){animation-delay:.25s}.card:nth-child(4){animation-delay:.35s}
+.card-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(168,85,247,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,.04) 1px,transparent 1px);background-size:32px 32px;animation:gs 12s linear infinite;pointer-events:none}
+@keyframes gs{from{background-position:0 0}to{background-position:0 32px}}
+.card::before,.card::after{content:'';position:absolute;width:18px;height:18px;z-index:10}
+.card-gold::before{top:0;left:0;border-top:1.5px solid var(--gold);border-left:1.5px solid var(--gold)}
+.card-gold::after{bottom:0;right:0;border-bottom:1.5px solid var(--purple);border-right:1.5px solid var(--purple)}
+.card-purple::before{top:0;left:0;border-top:1.5px solid var(--purple);border-left:1.5px solid var(--purple)}
+.card-purple::after{bottom:0;right:0;border-bottom:1.5px solid rgba(168,85,247,.5);border-right:1.5px solid rgba(168,85,247,.5)}
+.card-cyan::before{top:0;left:0;border-top:1.5px solid var(--cyan);border-left:1.5px solid var(--cyan)}
+.card-cyan::after{bottom:0;right:0;border-bottom:1.5px solid rgba(34,211,238,.4);border-right:1.5px solid rgba(34,211,238,.4)}
+.card-red::before{top:0;left:0;border-top:1.5px solid var(--red);border-left:1.5px solid var(--red)}
+.card-red::after{bottom:0;right:0;border-bottom:1.5px solid rgba(248,113,113,.5);border-right:1.5px solid rgba(248,113,113,.5)}
+.card-scan{position:absolute;left:0;right:0;height:1.5px;z-index:15;top:-2px;animation:sd 5s ease-in-out infinite;pointer-events:none}
+@keyframes sd{0%{top:-2px;opacity:0}8%{opacity:.7}92%{opacity:.7}100%{top:100%;opacity:0}}
+.card-scan-gold{background:linear-gradient(90deg,transparent,var(--gold),var(--purple),transparent)}
+.card-scan-purple{background:linear-gradient(90deg,transparent,var(--purple),transparent);animation-delay:1.5s}
+.card-scan-cyan{background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation-delay:3s}
+.card-scan-red{background:linear-gradient(90deg,transparent,var(--red),transparent)}
+.card-glow-gold{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,.14) 0%,transparent 70%);pointer-events:none;top:-60px;left:-60px}
+.card-glow-purple{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.14) 0%,transparent 70%);pointer-events:none;top:-60px;left:-60px}
+.card-body{position:relative;z-index:5;padding:22px 24px 24px;display:flex;flex-direction:column;gap:12px}
+
+/* ── Account card ── */
+.acc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.acc-tag{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:3px 10px;border:1px solid;width:fit-content;display:flex;align-items:center;gap:6px}
+.acc-tag-gold{color:var(--gold);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.06)}
+.acc-tag-green{color:var(--green);border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.06)}
+.acc-tag-red{color:var(--red);border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)}
+.acc-name{font-family:'Orbitron',sans-serif;font-size:clamp(14px,1.6vw,18px);font-weight:900;color:#fff;line-height:1.1;flex:1}
+.ea-badge{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:2px;flex-shrink:0}
+.ea-dot{width:6px;height:6px;border-radius:50%}
+.ea-on{color:var(--green)}.ea-on .ea-dot{background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.4s ease-in-out infinite}
+.ea-off{color:var(--red)}.ea-off .ea-dot{background:var(--red)}
+
+/* ── Balance row ── */
+.bal-row{display:flex;gap:10px}
+.bal-item{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border-dim);padding:8px 12px}
+.bal-val{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;line-height:1}
+.bal-label{font-size:10px;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,.35);text-transform:uppercase;margin-top:3px}
+
+/* ── Progress bar ── */
+.progress-block{display:flex;flex-direction:column;gap:8px}
+.progress-header{display:flex;justify-content:space-between;align-items:baseline}
+.progress-title{font-size:11px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.5);text-transform:uppercase}
+.progress-pct{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900}
+.progress-track{height:8px;background:rgba(255,255,255,.06);position:relative;overflow:hidden}
+.progress-fill{height:100%;position:absolute;left:0;top:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.progress-fill-gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-glow))}
+.progress-fill-green{background:linear-gradient(90deg,#16a34a,var(--green))}
+.progress-target{position:absolute;right:0;top:-3px;bottom:-3px;width:2px;background:rgba(255,255,255,.25)}
+.progress-sub{font-size:11px;color:rgba(255,255,255,.35);display:flex;justify-content:space-between}
+
+/* ── Risk gauges ── */
+.risk-row{display:flex;gap:8px}
+.risk-gauge{flex:1;border:1px solid;padding:8px 10px}
+.risk-gauge-daily{border-color:rgba(251,191,36,.2);background:rgba(251,191,36,.04)}
+.risk-gauge-dd{border-color:rgba(168,85,247,.2);background:rgba(168,85,247,.04)}
+.risk-gauge-daily.warn{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.07)}
+.risk-gauge-dd.warn{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.07)}
+.rg-label{font-size:9.5px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.35);text-transform:uppercase}
+.rg-bar{height:5px;background:rgba(255,255,255,.06);margin:5px 0;position:relative;overflow:hidden}
+.rg-fill-gold{height:100%;background:var(--gold);transition:width .8s}
+.rg-fill-purple{height:100%;background:var(--purple);transition:width .8s}
+.rg-fill-red{height:100%;background:var(--red)}
+.rg-val{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;line-height:1}
+.rg-max{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px}
+
+/* ── Sparkline ── */
+.spark-wrap{border-top:1px solid var(--border-dim);padding-top:12px}
+.spark-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:6px}
+.spark-svg{width:100%;height:56px;display:block}
+
+/* ── Stats row ── */
+.stats-row{display:flex;gap:6px;flex-wrap:wrap}
+.stat-chip{flex:1;min-width:80px;background:rgba(255,255,255,.03);border:1px solid var(--border-dim);padding:8px 10px;text-align:center}
+.stat-val{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;line-height:1}
+.stat-lbl{font-size:9.5px;font-weight:600;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-top:3px}
+
+/* ── Burned overlay ── */
+.burned-overlay{position:absolute;inset:0;background:rgba(8,8,16,.85);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.burned-x{font-family:'Orbitron',sans-serif;font-size:52px;font-weight:900;color:var(--red);line-height:1;text-shadow:0 0 30px rgba(248,113,113,.6)}
+.burned-label{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--red);letter-spacing:4px}
+
+/* ── Positions / Trades tables ── */
+.table-card{background:var(--card-bg);border:1px solid var(--border-dim);position:relative;overflow:hidden}
+.table-card::before{content:'';position:absolute;top:0;left:0;width:18px;height:18px;border-top:1.5px solid var(--purple);border-left:1.5px solid var(--purple)}
+.table-card::after{content:'';position:absolute;bottom:0;right:0;width:18px;height:18px;border-bottom:1.5px solid rgba(168,85,247,.4);border-right:1.5px solid rgba(168,85,247,.4)}
+.table-header{padding:16px 22px 12px;border-bottom:1px solid var(--border-dim);display:flex;align-items:center;justify-content:space-between}
+.table-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#fff;letter-spacing:1px}
+.table-badge{font-size:10px;font-weight:700;letter-spacing:2px;padding:2px 9px;border:1px solid}
+.badge-cyan{color:var(--cyan);border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.05)}
+.badge-purple{color:var(--purple-glow);border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.05)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--border-dim)}
+th{padding:8px 12px;font-size:9.5px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase;text-align:left;white-space:nowrap}
+td{padding:9px 12px;font-size:13px;font-weight:500;border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.dir-long{color:var(--green);font-weight:700;letter-spacing:1px}
+.dir-short{color:var(--red);font-weight:700;letter-spacing:1px}
+.pnl-pos{color:var(--green);font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700}
+.pnl-neg{color:var(--red);font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700}
+.pnl-zero{color:rgba(255,255,255,.35);font-family:'Orbitron',sans-serif;font-size:12px}
+.empty-row td{text-align:center;color:rgba(255,255,255,.2);font-size:12px;padding:24px;letter-spacing:2px}
+
+/* ── Two-col layout ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* ── Responsive breakpoints ── */
+@media(max-width:1100px){
+  .two-col{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .site-header{flex-direction:column;align-items:flex-start}
+  .header-right{width:100%;justify-content:flex-start}
+  .next-run-chip{display:none}
+  .bal-row{flex-wrap:wrap}
+  .bal-item{min-width:calc(50% - 5px)}
+  .risk-row{flex-direction:column}
+  .stats-row{flex-wrap:wrap}
+  .stat-chip{min-width:calc(50% - 3px)}
+  table th,table td{padding:7px 8px;font-size:12px}
+}
+@media(max-width:480px){
+  .brand-title{font-size:20px}
+  .bal-item{min-width:100%}
+  .two-col,.accounts-grid{gap:12px}
+}
+
+/* ── Bot toggle button ── */
+.bot-toggle{display:flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;background:transparent;transition:all .2s;white-space:nowrap;font-family:'Rajdhani',sans-serif}
+.bot-toggle.running{border-color:rgba(248,113,113,.5);color:var(--red)}
+.bot-toggle.running:hover{background:rgba(248,113,113,.1)}
+.bot-toggle.stopped{border-color:rgba(74,222,128,.5);color:var(--green)}
+.bot-toggle.stopped:hover{background:rgba(74,222,128,.1)}
+.bot-toggle.loading{border-color:rgba(251,191,36,.4);color:var(--gold);cursor:wait;opacity:.7}
+.toggle-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.running .toggle-dot{background:var(--red);animation:blink 1s ease-in-out infinite}
+.stopped .toggle-dot{background:var(--green)}
+.loading .toggle-dot{background:var(--gold);animation:blink .5s ease-in-out infinite}
+
+/* ── Card actions row ── */
+.card-actions{display:flex;align-items:center;justify-content:space-between;padding:10px 24px 14px;border-top:1px solid var(--border-dim);gap:8px}
+.card-action-btn{background:transparent;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 12px;cursor:pointer;font-family:'Rajdhani',sans-serif;transition:all .2s}
+.card-action-btn:hover{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.6)}
+.card-action-btn.danger:hover{border-color:rgba(248,113,113,.5);color:var(--red)}
+
+/* ── Modal overlay ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(8,8,15,.88);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#0b0b18;border:1px solid rgba(168,85,247,.3);max-width:560px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;width:20px;height:20px;border-top:1.5px solid var(--purple);border-left:1.5px solid var(--purple)}
+.modal::after{content:'';position:absolute;bottom:0;right:0;width:20px;height:20px;border-bottom:1.5px solid rgba(168,85,247,.4);border-right:1.5px solid rgba(168,85,247,.4)}
+.modal-header{padding:22px 24px 16px;border-bottom:1px solid rgba(168,85,247,.15);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:1px}
+.modal-close{background:transparent;border:none;color:rgba(255,255,255,.35);font-size:20px;cursor:pointer;padding:0;line-height:1;transition:color .2s}
+.modal-close:hover{color:#fff}
+.modal-body{padding:22px 24px}
+.form-row{margin-bottom:16px}
+.form-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.45);text-transform:uppercase;display:block;margin-bottom:7px}
+.form-label em{font-style:normal;color:var(--purple);margin-left:4px}
+.form-input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.2);color:#fff;font-size:13px;font-family:'Rajdhani',sans-serif;padding:10px 14px;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:rgba(168,85,247,.6)}
+.form-input::placeholder{color:rgba(255,255,255,.2)}
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-hint{font-size:11px;color:rgba(255,255,255,.25);margin-top:5px;line-height:1.4}
+.modal-footer{padding:16px 24px 20px;border-top:1px solid rgba(168,85,247,.12);display:flex;gap:10px;justify-content:flex-end}
+.btn-primary{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.5);color:var(--purple-glow);font-size:11px;font-weight:700;letter-spacing:2.5px;padding:10px 22px;cursor:pointer;font-family:'Rajdhani',sans-serif;transition:all .2s;text-transform:uppercase}
+.btn-primary:hover{background:rgba(168,85,247,.28);border-color:var(--purple)}
+.btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.45);font-size:11px;font-weight:700;letter-spacing:2.5px;padding:10px 22px;cursor:pointer;font-family:'Rajdhani',sans-serif;transition:all .2s;text-transform:uppercase}
+.btn-secondary:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.7)}
+.form-error{font-size:12px;color:var(--red);margin-top:6px;display:none}
+.form-success{font-size:12px;color:var(--green);margin-top:6px;display:none}
+
+/* ── Add account button ── */
+.add-account-btn{display:flex;align-items:center;justify-content:center;gap:10px;border:1px dashed rgba(168,85,247,.3);color:rgba(168,85,247,.6);font-size:12px;font-weight:700;letter-spacing:3px;min-height:120px;cursor:pointer;background:transparent;transition:all .2s;width:100%;font-family:'Rajdhani',sans-serif;text-transform:uppercase}
+.add-account-btn:hover{border-color:rgba(168,85,247,.6);color:var(--purple);background:rgba(168,85,247,.05)}
+
+/* ── Bot info footer ── */
+.bot-footer{padding:24px clamp(16px,3vw,40px) 0;max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:16px 28px;width:100%}
+.footer-item{font-size:11px;color:rgba(255,255,255,.25);letter-spacing:1.5px;display:flex;align-items:center;gap:6px}
+.footer-item em{font-style:normal;color:rgba(255,255,255,.5)}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- TOP HEADER -->
+<div class="site-header">
+  <div class="brand">
+    <span class="brand-label">⬡ trading automation ⬡</span>
+    <div class="brand-title"><span>BOT </span><em>Mining Store</em><span> GOLD</span></div>
+  </div>
+  <div class="header-right">
+    <div class="next-run-chip">SIGUIENTE CICLO &nbsp;<em id="next-run-val">--:--</em></div>
+    <div id="pill-bot" class="status-pill offline"><div class="status-dot"></div><span id="pill-text">VERIFICANDO</span></div>
+    <div class="refresh-time" id="refresh-time">actualizando...</div>
+  </div>
+</div>
+
+<!-- BURNED BANNER (hidden by default) -->
+<div class="section" id="burned-section" style="display:none">
+  <div class="burned-banner">
+    <div class="burned-icon">⚠</div>
+    <div>
+      <div class="burned-text">CUENTAS ELIMINADAS</div>
+      <div style="font-size:12px;color:rgba(248,113,113,.6);margin-top:3px">Una o más cuentas han superado los límites de riesgo FTMO</div>
+    </div>
+    <div class="burned-count" id="burned-count">0</div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA / EDITAR CUENTA -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">⬡ NUEVA CUENTA FTMO</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modal-edit-id">
+      <div class="form-row">
+        <label class="form-label">Nombre de la cuenta <em>*</em></label>
+        <input class="form-input" id="f-name" type="text" placeholder="Ej: FTMO $10k — Eval #2">
+      </div>
+      <div class="form-grid2">
+        <div class="form-row">
+          <label class="form-label">Balance inicial (USD) <em>*</em></label>
+          <input class="form-input" id="f-balance" type="number" placeholder="10000">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Fase <em>*</em></label>
+          <select class="form-input" id="f-phase">
+            <option value="1">Fase 1 — Challenge</option>
+            <option value="2">Fase 2 — Verification</option>
+            <option value="3">Fase 3 — Fondeada</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row">
+          <label class="form-label">Objetivo ganancia % <em>*</em></label>
+          <input class="form-input" id="f-target" type="number" step="0.1" placeholder="10">
+          <div class="form-hint">Fase 1: 10% · Fase 2: 5%</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Pérdida diaria max % <em>*</em></label>
+          <input class="form-input" id="f-daily" type="number" step="0.1" placeholder="5">
+          <div class="form-hint">FTMO estándar: 5%</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Drawdown máximo % <em>*</em></label>
+        <input class="form-input" id="f-maxdd" type="number" step="0.1" placeholder="10">
+        <div class="form-hint">FTMO estándar: 10% · Normal: 8%</div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ruta base de datos SQLite <em>*</em></label>
+        <input class="form-input" id="f-db" type="text" placeholder="gold_bot.db">
+        <div class="form-hint">Relativa al directorio del bot, o ruta absoluta</div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ruta archivo estado MT5 (status_file) <em>*</em></label>
+        <input class="form-input" id="f-status" type="text" placeholder="C:/Users/.../goldbot_status.json">
+        <div class="form-hint">Generado por el EA en la carpeta Files del terminal MT5</div>
+      </div>
+      <div class="form-error" id="modal-error"></div>
+      <div class="form-success" id="modal-success"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">CANCELAR</button>
+      <button class="btn-primary" id="modal-save-btn" onclick="saveAccount()">GUARDAR CUENTA</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNTS -->
+<div class="section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="section-label" style="margin-bottom:0">⬡ Cuentas Conectadas</div>
+    <button class="btn-primary" style="font-size:10px;padding:7px 16px" onclick="openModal()">+ NUEVA CUENTA</button>
+  </div>
+  <div class="accounts-grid" id="accounts-grid">
+    <div class="card card-purple" style="min-height:180px">
+      <div class="card-grid"></div><div class="card-glow-purple"></div>
+      <div class="card-scan card-scan-purple"></div>
+      <div class="card-body" style="align-items:center;justify-content:center;min-height:180px">
+        <div style="color:rgba(255,255,255,.25);letter-spacing:3px;font-size:12px">CARGANDO CUENTAS...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN POSITIONS + RISK PANEL -->
+<div class="section" style="margin-top:8px">
+  <div class="two-col">
+    <div>
+      <div class="section-label">⬡ Posiciones Abiertas</div>
+      <div class="table-card">
+        <div class="card-scan card-scan-cyan" style="position:absolute"></div>
+        <div class="table-header">
+          <span class="table-title">POSICIONES ACTIVAS</span>
+          <span class="table-badge badge-cyan" id="open-count">0 OPEN</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Dir</th><th>Entrada</th><th>S/L</th><th>P&amp;L Live</th><th>RSI</th><th>ADX</th><th>Fecha</th>
+            </tr></thead>
+            <tbody id="open-tbody">
+              <tr class="empty-row"><td colspan="7">SIN POSICIONES ABIERTAS</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">⬡ Estado de Estrategia</div>
+      <div class="table-card" style="padding:20px 22px 24px">
+        <div class="card-grid" style="position:absolute;inset:0;background-image:linear-gradient(rgba(251,191,36,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(251,191,36,.03) 1px,transparent 1px);background-size:32px 32px"></div>
+        <div class="card-scan card-scan-gold" style="position:absolute"></div>
+        <div style="position:relative;z-index:5">
+          <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px">ESTRATEGIA D — BB BREAKOUT</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="strat-stats">
+            <div class="hstat-block" data-key="win_rate">
+              <div class="bal-val" style="color:var(--green)" id="s-wr">--%</div>
+              <div class="bal-label" style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px">Win Rate</div>
+            </div>
+            <div class="hstat-block">
+              <div class="bal-val" style="color:var(--gold)" id="s-pf">--</div>
+              <div class="bal-label" style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px">Profit Factor</div>
+            </div>
+            <div class="hstat-block">
+              <div class="bal-val" style="color:var(--purple-glow)" id="s-trades">--</div>
+              <div class="bal-label" style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px">Total Trades</div>
+            </div>
+            <div class="hstat-block">
+              <div class="bal-val" style="color:var(--red)" id="s-streak">--</div>
+              <div class="bal-label" style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px">Racha Pérdidas</div>
+            </div>
+            <div class="hstat-block">
+              <div class="bal-val" style="color:var(--cyan)" id="s-avgw">--</div>
+              <div class="bal-label" style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px">Avg Ganancia</div>
+            </div>
+            <div class="hstat-block">
+              <div class="bal-val" style="color:var(--red)" id="s-avgl">--</div>
+              <div class="bal-label" style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px">Avg Pérdida</div>
+            </div>
+          </div>
+          <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-dim)">
+            <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:8px">Regla FTMO</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:rgba(255,255,255,.45)">Objetivo Fase 1</span>
+                <span style="color:var(--gold);font-family:'Orbitron',sans-serif;font-size:11px">+10.0%</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:rgba(255,255,255,.45)">Max Drawdown</span>
+                <span style="color:var(--purple-glow);font-family:'Orbitron',sans-serif;font-size:11px">-8.0%</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:rgba(255,255,255,.45)">Pérdida Diaria Max</span>
+                <span style="color:var(--purple-glow);font-family:'Orbitron',sans-serif;font-size:11px">-4.5%</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:rgba(255,255,255,.45)">Límite de Tiempo</span>
+                <span style="color:var(--green);font-family:'Orbitron',sans-serif;font-size:11px">SIN LÍMITE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSED TRADES -->
+<div class="section" style="margin-top:8px">
+  <div class="section-label">⬡ Historial de Operaciones</div>
+  <div class="table-card">
+    <div class="card-scan card-scan-purple" style="position:absolute"></div>
+    <div class="table-header">
+      <span class="table-title">ÚLTIMAS OPERACIONES CERRADAS</span>
+      <span class="table-badge badge-purple" id="closed-count">0 TRADES</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Fecha</th><th>Dir</th><th>Entrada</th><th>Salida</th><th>P&amp;L $</th><th>P&amp;L %</th><th>RSI</th><th>ADX</th>
+        </tr></thead>
+        <tbody id="closed-tbody">
+          <tr class="empty-row"><td colspan="8">SIN OPERACIONES CERRADAS</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="bot-footer">
+  <div class="footer-item">Estrategia <em>BB Breakout + SMA50</em></div>
+  <div class="footer-item">Timeframe <em>H4</em></div>
+  <div class="footer-item">Riesgo/Trade <em>2.0%</em></div>
+  <div class="footer-item">Instrumento <em>XAU/USD</em></div>
+  <div class="footer-item" id="server-time">Server <em>--</em></div>
+</div>
+
+<script>
+let DATA = null;
+
+/* ── Helpers ── */
+const $  = id => document.getElementById(id);
+const fmt$ = n => n == null ? '--' : (n >= 0 ? '+$' : '-$') + Math.abs(n).toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtPct = n => n == null ? '--' : (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+const fmtPrice = n => n == null ? '--' : '$' + Number(n).toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2});
+const clsPnl = n => n > 0 ? 'pnl-pos' : n < 0 ? 'pnl-neg' : 'pnl-zero';
+
+/* ── Sparkline ── */
+function buildSparkline(vals, color) {
+  if (!vals || vals.length < 2) return '<svg class="spark-svg"></svg>';
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const range = mx - mn || 1;
+  const W = 400, H = 56, PAD = 4;
+  const pts = vals.map((v, i) => {
+    const x = PAD + (i / (vals.length - 1)) * (W - PAD * 2);
+    const y = H - PAD - ((v - mn) / range) * (H - PAD * 2);
+    return `${x},${y}`;
+  }).join(' ');
+  const last = pts.split(' ').pop().split(',');
+  return `<svg class="spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity=".25"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" opacity=".8"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${color}" opacity=".9"/>
+  </svg>`;
+}
+
+/* ── Account card builder ── */
+function buildAccountCard(acc) {
+  const burned   = acc.burned;
+  const passed   = acc.progress_pct >= acc.target_pct;
+  const progress = Math.min(100, (acc.progress_pct / acc.target_pct) * 100);
+  const dailyPct = Math.min(100, (acc.daily_loss_used / acc.daily_limit) * 100);
+  const ddPct    = Math.min(100, (Math.abs(acc.max_dd) / acc.max_dd_limit) * 100);
+  const dailyWarn= acc.daily_loss_used > acc.daily_limit * 0.7;
+  const ddWarn   = Math.abs(acc.max_dd) > acc.max_dd_limit * 0.7;
+
+  const tagClass  = burned ? 'acc-tag-red' : passed ? 'acc-tag-green' : 'acc-tag-gold';
+  const tagText   = burned ? '✕ ELIMINADA' : passed ? '✓ SUPERADA' : `★ FASE ${acc.phase}`;
+  const cardColor = burned ? 'card-red' : 'card-gold';
+  const scanColor = burned ? 'card-scan-red' : 'card-scan-gold';
+  const glowColor = burned ? '' : 'card-glow-gold';
+  const pctColor  = burned ? 'var(--red)' : passed ? 'var(--green)' : 'var(--gold)';
+  const fillClass = burned ? '' : passed ? 'progress-fill-green' : 'progress-fill-gold';
+  const spark     = buildSparkline(acc.spark_vals, passed ? '#4ade80' : '#fbbf24');
+
+  const eaBadge = acc.ea_up
+    ? `<div class="ea-badge ea-on"><div class="ea-dot"></div>EA LIVE</div>`
+    : `<div class="ea-badge ea-off"><div class="ea-dot"></div>EA OFF</div>`;
+
+  const botRunning = acc.bot_running;
+  const toggleBtn = `
+    <button class="bot-toggle ${botRunning ? 'running' : 'stopped'}"
+            id="toggle-${acc.id}"
+            onclick="toggleBot('${acc.id}', ${botRunning})">
+      <div class="toggle-dot"></div>
+      ${botRunning ? 'DETENER BOT' : 'INICIAR BOT'}
+    </button>`;
+
+  return `
+  <div class="card ${cardColor}" style="border:1px solid ${burned ? 'rgba(248,113,113,.25)' : 'rgba(251,191,36,.2)'}">
+    <div class="card-grid"></div>
+    ${glowColor ? `<div class="${glowColor}"></div>` : ''}
+    <div class="card-scan ${scanColor}"></div>
+    <div class="card-body">
+      <div class="acc-header">
+        <div>
+          <div class="acc-tag ${tagClass}">${tagText}</div>
+          <div class="acc-name" style="margin-top:8px">${acc.name}</div>
+        </div>
+        ${eaBadge}
+      </div>
+
+      <div class="bal-row">
+        <div class="bal-item">
+          <div class="bal-val" style="color:${pctColor}">${fmtPrice(acc.equity || acc.working)}</div>
+          <div class="bal-label">Equity Actual</div>
+        </div>
+        <div class="bal-item">
+          <div class="bal-val" style="color:${acc.pnl_total >= 0 ? 'var(--green)' : 'var(--red)'}">
+            ${fmt$(acc.pnl_total)}
+          </div>
+          <div class="bal-label">P&L Total</div>
+        </div>
+        <div class="bal-item">
+          <div class="bal-val" style="color:${acc.daily_pnl >= 0 ? 'var(--green)' : 'var(--red)'}">
+            ${fmt$(acc.daily_pnl)}
+          </div>
+          <div class="bal-label">P&L Hoy</div>
+        </div>
+      </div>
+
+      <div class="progress-block">
+        <div class="progress-header">
+          <span class="progress-title">${passed ? 'OBJETIVO ALCANZADO' : 'PROGRESO HACIA +' + acc.target_pct + '%'}</span>
+          <span class="progress-pct" style="color:${pctColor}">${fmtPct(acc.progress_pct)}</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill ${fillClass}" style="width:${progress}%"></div>
+          <div class="progress-target"></div>
+        </div>
+        <div class="progress-sub">
+          <span>Inicio: ${fmtPrice(acc.initial)}</span>
+          <span>${passed ? 'FASE COMPLETADA' : 'Faltan: ' + fmtPct(acc.remaining_pct)}</span>
+        </div>
+      </div>
+
+      <div class="risk-row">
+        <div class="risk-gauge risk-gauge-daily ${dailyWarn ? 'warn' : ''}">
+          <div class="rg-label">Pérdida Diaria</div>
+          <div class="rg-bar"><div class="${dailyWarn ? 'rg-fill-red' : 'rg-fill-gold'}" style="width:${dailyPct}%"></div></div>
+          <div class="rg-val" style="color:${dailyWarn ? 'var(--red)' : 'var(--gold)'}">${acc.daily_loss_used.toFixed(1)}%</div>
+          <div class="rg-max">Límite ${acc.daily_limit}%</div>
+        </div>
+        <div class="risk-gauge risk-gauge-dd ${ddWarn ? 'warn' : ''}">
+          <div class="rg-label">Drawdown</div>
+          <div class="rg-bar"><div class="${ddWarn ? 'rg-fill-red' : 'rg-fill-purple'}" style="width:${ddPct}%"></div></div>
+          <div class="rg-val" style="color:${ddWarn ? 'var(--red)' : 'var(--purple-glow)'}">${acc.max_dd.toFixed(1)}%</div>
+          <div class="rg-max">Límite -${acc.max_dd_limit}%</div>
+        </div>
+      </div>
+
+      <div class="spark-wrap">
+        <div class="spark-label">Curva de Equity</div>
+        ${spark}
+      </div>
+    </div>
+
+    <!-- Acciones de la card -->
+    <div class="card-actions">
+      ${toggleBtn}
+      <div style="display:flex;gap:6px">
+        <button class="card-action-btn" onclick="editAccount('${acc.id}')">EDITAR</button>
+        <button class="card-action-btn danger" onclick="deleteAccount('${acc.id}', '${acc.name.replace(/'/g,"\\'")}')">ELIMINAR</button>
+      </div>
+    </div>
+
+    ${burned ? `<div class="burned-overlay"><div class="burned-x">✕</div><div class="burned-label">CUENTA ELIMINADA</div></div>` : ''}
+  </div>`;
+}
+
+/* ── Render open positions ── */
+function renderOpen(positions) {
+  $('open-count').textContent = positions.length + ' OPEN';
+  const tbody = $('open-tbody');
+  if (!positions.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">SIN POSICIONES ABIERTAS</td></tr>';
+    return;
+  }
+  tbody.innerHTML = positions.map(p => `
+    <tr>
+      <td class="${p.direction === 'long' ? 'dir-long' : 'dir-short'}">${p.direction === 'long' ? '▲ LONG' : '▼ SHORT'}</td>
+      <td style="color:rgba(255,255,255,.7);font-family:'Orbitron',sans-serif;font-size:12px">${p.entry.toFixed(2)}</td>
+      <td style="color:var(--red);font-size:12px">${p.sl.toFixed(2)}</td>
+      <td class="${clsPnl(p.unrealized)}">${fmt$(p.unrealized)}</td>
+      <td style="color:rgba(255,255,255,.55)">${p.rsi}</td>
+      <td style="color:rgba(255,255,255,.55)">${p.adx}</td>
+      <td style="color:rgba(255,255,255,.3);font-size:11px">${p.timestamp}</td>
+    </tr>`).join('');
+}
+
+/* ── Render closed trades ── */
+function renderClosed(trades, initial) {
+  $('closed-count').textContent = trades.length + ' TRADES';
+  const tbody = $('closed-tbody');
+  if (!trades.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">SIN OPERACIONES CERRADAS</td></tr>';
+    return;
+  }
+  tbody.innerHTML = trades.map(t => {
+    const pnlPct = initial ? ((t.pnl / initial) * 100).toFixed(2) : '--';
+    return `
+    <tr>
+      <td style="color:rgba(255,255,255,.45);font-size:11px">${t.date}</td>
+      <td class="${t.direction === 'long' ? 'dir-long' : 'dir-short'}">${t.direction === 'long' ? '▲ LONG' : '▼ SHORT'}</td>
+      <td style="font-family:'Orbitron',sans-serif;font-size:11px;color:rgba(255,255,255,.6)">${t.entry.toFixed(2)}</td>
+      <td style="font-family:'Orbitron',sans-serif;font-size:11px;color:rgba(255,255,255,.6)">${t.exit.toFixed(2)}</td>
+      <td class="${clsPnl(t.pnl)}">${fmt$(t.pnl)}</td>
+      <td class="${clsPnl(t.pnl)}" style="font-size:11px">${t.pnl >= 0 ? '+' : ''}${pnlPct}%</td>
+      <td style="color:rgba(255,255,255,.4)">${t.rsi}</td>
+      <td style="color:rgba(255,255,255,.4)">${t.adx}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Next run countdown ── */
+function updateCountdown(nextRunISO) {
+  if (!nextRunISO) return;
+  const diff = new Date(nextRunISO) - new Date();
+  if (diff <= 0) { $('next-run-val').textContent = 'AHORA'; return; }
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  $('next-run-val').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* ── Main render ── */
+function render(data) {
+  DATA = data;
+  const accounts = data.accounts || [];
+
+  // Burned banner
+  if (data.burned_total > 0) {
+    $('burned-section').style.display = '';
+    $('burned-count').textContent = data.burned_total;
+  }
+
+  // Accounts grid
+  const grid = $('accounts-grid');
+  const cards = accounts.map(a => buildAccountCard(a)).join('');
+  const addBtn = `<button class="add-account-btn" onclick="openModal()">+ AGREGAR CUENTA</button>`;
+  grid.innerHTML = cards + addBtn;
+
+  // Bot pill
+  const anyEaUp = accounts.some(a => a.ea_up);
+  const pill = $('pill-bot');
+  pill.className = 'status-pill ' + (anyEaUp ? 'online' : 'offline');
+  $('pill-text').textContent = anyEaUp ? 'BOT ACTIVO' : 'BOT OFFLINE';
+
+  // Stats from first account
+  if (accounts[0]) {
+    const a = accounts[0];
+    $('s-wr').textContent     = a.win_rate + '%';
+    $('s-pf').textContent     = a.profit_factor || '--';
+    $('s-trades').textContent = a.trades_total;
+    $('s-streak').textContent = a.loss_streak;
+    $('s-avgw').textContent   = fmt$(a.avg_win);
+    $('s-avgl').textContent   = fmt$(a.avg_loss);
+
+    renderOpen(a.open_positions || []);
+    renderClosed(a.recent_trades || [], a.initial);
+  }
+
+  // Server time
+  const t = new Date(data.server_time);
+  $('server-time').innerHTML = `Server <em>${t.toLocaleTimeString('es-CL')}</em>`;
+  $('refresh-time').textContent = 'Actualizado: ' + t.toLocaleTimeString('es-CL');
+
+  updateCountdown(data.next_run);
+}
+
+/* ── Fetch loop ── */
+async function fetchData() {
+  try {
+    const r = await fetch('/api/data');
+    const d = await r.json();
+    render(d);
+  } catch(e) {
+    $('pill-text').textContent = 'ERROR API';
+    $('refresh-time').textContent = 'Error de conexión — ' + new Date().toLocaleTimeString('es-CL');
+  }
+}
+
+fetchData();
+setInterval(fetchData, 30000);
+setInterval(() => { if (DATA) updateCountdown(DATA.next_run); }, 1000);
+
+/* ── Modal helpers ── */
+function openModal(editId) {
+  if (!editId) {
+    $('modal-title').textContent = '⬡ NUEVA CUENTA FTMO';
+    $('modal-edit-id').value = '';
+    $('modal-save-btn').textContent = 'GUARDAR CUENTA';
+    ['f-name','f-balance','f-db','f-status','f-target','f-daily','f-maxdd'].forEach(id => $(id).value = '');
+    $('f-target').value  = '10';
+    $('f-daily').value   = '5';
+    $('f-maxdd').value   = '10';
+    $('f-phase').value   = '1';
+    $('f-db').value      = 'gold_bot.db';
+  }
+  $('modal-error').style.display   = 'none';
+  $('modal-success').style.display = 'none';
+  $('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  $('modal-overlay').classList.remove('open');
+}
+
+// Cerrar al hacer click fuera del modal
+$('modal-overlay').addEventListener('click', e => {
+  if (e.target === $('modal-overlay')) closeModal();
+});
+
+/* ── Guardar cuenta (create o update) ── */
+async function saveAccount() {
+  const editId = $('modal-edit-id').value;
+  const payload = {
+    name:                 $('f-name').value.trim(),
+    initial_balance:      parseFloat($('f-balance').value),
+    target_pct:           parseFloat($('f-target').value),
+    daily_loss_limit_pct: parseFloat($('f-daily').value),
+    max_dd_pct:           parseFloat($('f-maxdd').value),
+    phase:                parseInt($('f-phase').value),
+    db_path:              $('f-db').value.trim(),
+    status_file:          $('f-status').value.trim(),
+  };
+
+  if (!payload.name || !payload.db_path || !payload.status_file) {
+    showModalError('Por favor completa todos los campos obligatorios.');
+    return;
+  }
+
+  const url    = editId ? `/api/accounts/${editId}` : '/api/accounts';
+  const method = editId ? 'PUT' : 'POST';
+
+  try {
+    $('modal-save-btn').textContent = 'GUARDANDO...';
+    $('modal-save-btn').disabled = true;
+    const r = await fetch(url, {
+      method,
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json();
+    if (!r.ok) { showModalError(data.error || 'Error al guardar.'); return; }
+
+    showModalSuccess(editId ? 'Cuenta actualizada.' : 'Cuenta agregada correctamente.');
+    setTimeout(() => { closeModal(); fetchData(); }, 900);
+  } catch(e) {
+    showModalError('Error de conexión con el servidor.');
+  } finally {
+    $('modal-save-btn').textContent = 'GUARDAR CUENTA';
+    $('modal-save-btn').disabled = false;
+  }
+}
+
+/* ── Editar cuenta ── */
+async function editAccount(accId) {
+  try {
+    const r    = await fetch('/api/accounts');
+    const list = await r.json();
+    const acc  = list.find(a => a.id === accId);
+    if (!acc) return;
+
+    $('modal-title').textContent      = '⬡ EDITAR CUENTA';
+    $('modal-save-btn').textContent   = 'ACTUALIZAR CUENTA';
+    $('modal-edit-id').value          = acc.id;
+    $('f-name').value                 = acc.name;
+    $('f-balance').value              = acc.initial_balance;
+    $('f-target').value               = acc.target_pct;
+    $('f-daily').value                = acc.daily_loss_limit_pct;
+    $('f-maxdd').value                = acc.max_dd_pct;
+    $('f-phase').value                = acc.phase;
+    $('f-db').value                   = acc.db_path;
+    $('f-status').value               = acc.status_file;
+
+    $('modal-error').style.display    = 'none';
+    $('modal-success').style.display  = 'none';
+    $('modal-overlay').classList.add('open');
+  } catch(e) { alert('Error cargando datos de la cuenta.'); }
+}
+
+/* ── Eliminar cuenta ── */
+async function deleteAccount(accId, accName) {
+  if (!confirm(`Eliminar la cuenta "${accName}"?\nEsta acción no se puede deshacer.`)) return;
+  try {
+    const r = await fetch(`/api/accounts/${accId}`, { method: 'DELETE' });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error || 'No se pudo eliminar.'); return; }
+    fetchData();
+  } catch(e) { alert('Error de conexión.'); }
+}
+
+/* ── Toggle bot ── */
+async function toggleBot(accId, isRunning) {
+  const btn = $(`toggle-${accId}`);
+  if (!btn) return;
+
+  btn.className = 'bot-toggle loading';
+  btn.innerHTML = '<div class="toggle-dot"></div>PROCESANDO...';
+  btn.disabled  = true;
+
+  const endpoint = isRunning ? 'stop' : 'start';
+  try {
+    const r = await fetch(`/api/accounts/${accId}/${endpoint}`, { method: 'POST' });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error || 'Error al cambiar estado del bot.'); }
+  } catch(e) { alert('Error de conexión.'); }
+
+  // Refrescar para actualizar estado real
+  setTimeout(fetchData, 800);
+}
+
+function showModalError(msg) {
+  $('modal-error').textContent   = msg;
+  $('modal-error').style.display = 'block';
+  $('modal-success').style.display = 'none';
+}
+function showModalSuccess(msg) {
+  $('modal-success').textContent   = msg;
+  $('modal-success').style.display = 'block';
+  $('modal-error').style.display   = 'none';
+}
+</script>
+</body>
+</html>

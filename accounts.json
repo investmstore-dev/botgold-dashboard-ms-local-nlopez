@@ -1,0 +1,13 @@
+﻿[
+  {
+    "id": "ftmo_10k_01",
+    "name": "FTMO $10k — Eval #1",
+    "initial_balance": 10000.0,
+    "target_pct": 10.0,
+    "daily_loss_limit_pct": 5.0,
+    "max_dd_pct": 10.0,
+    "phase": 1,
+    "db_path": "gold_bot.db",
+    "status_file": "C:/Users/TU_USUARIO/AppData/Roaming/MetaQuotes/Terminal/XXXXX/MQL5/Files/goldbot_status.json"
+  }
+]
